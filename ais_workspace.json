@@ -1,0 +1,475 @@
+{
+  "id": "workspace_1781082427262",
+  "name": "Alarm_Shields_Reward",
+  "version": "1.0.0",
+  "author": "AgentTest",
+  "description": "Plays alarm, lowers shields, rewards 100k credits when player enters a new sector.",
+  "nodes": [
+    {
+      "id": "cue_main",
+      "type": "cue",
+      "xmlTag": "cue",
+      "label": "Alarm_Shields_Reward",
+      "x": 100,
+      "y": 80,
+      "properties": {
+        "name": "Alarm_Shields_Reward",
+        "instantiate": "true",
+        "namespace": "this",
+        "state": "active"
+      },
+      "propertiesSchema": [
+        {
+          "key": "name",
+          "label": "Cue ID / Name",
+          "type": "text",
+          "placeholder": "e.g. MyCue_Start"
+        },
+        {
+          "key": "instantiate",
+          "label": "Instantiate",
+          "type": "select",
+          "options": [
+            "true",
+            "false"
+          ],
+          "description": "Creates a dynamic copy of this cue each time context occurs"
+        },
+        {
+          "key": "namespace",
+          "label": "Namespace",
+          "type": "select",
+          "options": [
+            "this",
+            "player",
+            "cue"
+          ]
+        },
+        {
+          "key": "state",
+          "label": "Initial State",
+          "type": "select",
+          "options": [
+            "active",
+            "inactive",
+            "waiting"
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "in_flow",
+          "name": "Trigger Parent",
+          "type": "parent"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "out_cond",
+          "name": "Conditions",
+          "type": "child"
+        },
+        {
+          "id": "out_act",
+          "name": "Actions",
+          "type": "child"
+        },
+        {
+          "id": "out_sub",
+          "name": "Sub Cues",
+          "type": "parent"
+        }
+      ]
+    },
+    {
+      "id": "event_sector",
+      "type": "event",
+      "xmlTag": "event_object_changed_sector",
+      "label": "Player Enters Sector",
+      "x": 400,
+      "y": 80,
+      "properties": {
+        "object": "playership",
+        "sector": "player.sector"
+      },
+      "propertiesSchema": [
+        {
+          "key": "object",
+          "label": "Object",
+          "type": "text",
+          "placeholder": "playership"
+        },
+        {
+          "key": "sector",
+          "label": "Target Sector",
+          "type": "text",
+          "placeholder": "player.sector",
+          "description": "Can specify a helper variable or specific zone"
+        }
+      ],
+      "inputs": [
+        {
+          "id": "in_cond",
+          "name": "Condition In",
+          "type": "child"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "out_flow",
+          "name": "Trigger Actions",
+          "type": "flow"
+        }
+      ]
+    },
+    {
+      "id": "action_alarm",
+      "type": "action",
+      "xmlTag": "play_sound",
+      "label": "Play Alarm Sound",
+      "x": 700,
+      "y": 80,
+      "properties": {
+        "object": "playership",
+        "sound": "alarm_red"
+      },
+      "propertiesSchema": [
+        {
+          "key": "object",
+          "label": "Source Object",
+          "type": "text",
+          "placeholder": "playership"
+        },
+        {
+          "key": "sound",
+          "label": "Audio Clip ID",
+          "type": "select",
+          "options": [
+            "notification_generic",
+            "mission_accomplished",
+            "mission_failed",
+            "incoming_transmission",
+            "ui_menu_click",
+            "alarm_red"
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "in_act",
+          "name": "Action In",
+          "type": "child"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "out_next",
+          "name": "Next Action",
+          "type": "flow"
+        }
+      ]
+    },
+    {
+      "id": "action_shields",
+      "type": "action",
+      "xmlTag": "custom_xml",
+      "label": "Drop Shields",
+      "x": 1000,
+      "y": 80,
+      "properties": {
+        "rawXml": "<set_object_shieldlevel object=\"player.primaryship\" level=\"0\" comment=\"Drop shields to zero\" />"
+      },
+      "propertiesSchema": [
+        {
+          "key": "rawXml",
+          "label": "Raw XML Snippet",
+          "type": "textarea",
+          "placeholder": "Enter any valid Mission Director XML block...",
+          "description": "This block will be printed raw directly into the actions block of the cue."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "in_act",
+          "name": "Action In",
+          "type": "child"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "out_next",
+          "name": "Next Action",
+          "type": "flow"
+        }
+      ]
+    },
+    {
+      "id": "action_reward",
+      "type": "action",
+      "xmlTag": "reward_player",
+      "label": "Reward Credits",
+      "x": 1300,
+      "y": 80,
+      "properties": {
+        "money": 1000000,
+        "notification": "true",
+        "standing": "",
+        "faction": ""
+      },
+      "propertiesSchema": [
+        {
+          "key": "money",
+          "label": "Credits Reward",
+          "type": "number",
+          "placeholder": "250000"
+        },
+        {
+          "key": "notification",
+          "label": "Display Notification",
+          "type": "select",
+          "options": [
+            "true",
+            "false"
+          ]
+        },
+        {
+          "key": "standing",
+          "label": "Faction Reputation Change",
+          "type": "text",
+          "placeholder": "0.05 (Scale -1.0 to 1.0)"
+        },
+        {
+          "key": "faction",
+          "label": "Reputation Faction",
+          "type": "select",
+          "options": [
+            "player",
+            "argon",
+            "xenon",
+            "khaak",
+            "split",
+            "paranid",
+            "teladi",
+            "terran",
+            "antigone",
+            "hatikvah",
+            "yaki",
+            "ministry"
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "in_act",
+          "name": "Action In",
+          "type": "child"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "out_next",
+          "name": "Next Action",
+          "type": "flow"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "link_cue_to_event",
+      "sourceNodeId": "cue_main",
+      "sourcePortId": "out_cond",
+      "targetNodeId": "event_sector",
+      "targetPortId": "in_cond"
+    },
+    {
+      "id": "link_cue_to_first_action",
+      "sourceNodeId": "cue_main",
+      "sourcePortId": "out_act",
+      "targetNodeId": "action_alarm",
+      "targetPortId": "in_act"
+    },
+    {
+      "id": "link_chain_1_to_2",
+      "sourceNodeId": "action_alarm",
+      "sourcePortId": "out_next",
+      "targetNodeId": "action_shields",
+      "targetPortId": "in_act"
+    },
+    {
+      "id": "link_chain_2_to_3",
+      "sourceNodeId": "action_shields",
+      "sourcePortId": "out_next",
+      "targetNodeId": "action_reward",
+      "targetPortId": "in_act"
+    }
+  ],
+  "uiWidgets": [],
+  "uiTheme": {
+    "backgroundColor": "#0F1115",
+    "borderColor": "#06b6d4",
+    "accentColor": "#0891b2",
+    "opacity": 0.95,
+    "showIcons": true
+  },
+  "tFiles": [],
+  "aiScripts": [
+    {
+      "id": "ai_hunter_escort",
+      "name": "hunter.escort.behavior",
+      "description": "Advanced aggressive patrol behavior that guards friendly transports and engages target intruders.",
+      "command": "command.patrol",
+      "attentionLevel": "high",
+      "params": [
+        {
+          "name": "target",
+          "type": "object",
+          "defaultValue": "this.ship.commander",
+          "comment": "Leader ship to closely escort"
+        },
+        {
+          "name": "flee_shield_percent",
+          "type": "number",
+          "defaultValue": "25",
+          "comment": "Shield threshold below which ship flees"
+        },
+        {
+          "name": "aggression",
+          "type": "number",
+          "defaultValue": "0.8",
+          "comment": "Fighter engagement speed scaler"
+        }
+      ],
+      "interrupts": [
+        {
+          "id": "int_1",
+          "event": "event.object_attacked",
+          "action": "flee"
+        },
+        {
+          "id": "int_2",
+          "event": "event.object_shield_low",
+          "action": "dock_at_safety"
+        }
+      ],
+      "actions": [
+        {
+          "id": "act_1",
+          "command": "move_to",
+          "label": "Match formation distance",
+          "properties": {
+            "destination": "$target",
+            "speed": "90",
+            "precision": "100m"
+          }
+        },
+        {
+          "id": "act_2",
+          "command": "find_objects",
+          "label": "Scan for sector hostilities",
+          "properties": {
+            "class": "ship",
+            "faction": "faction.xenon",
+            "range": "15km"
+          }
+        },
+        {
+          "id": "act_3",
+          "command": "shoot",
+          "label": "Interdict intruders",
+          "properties": {
+            "target": "$enemy",
+            "weapon": "primary"
+          }
+        },
+        {
+          "id": "act_4",
+          "command": "wait",
+          "label": "Resume station keeping cycle",
+          "properties": {
+            "min": "5s",
+            "max": "15s"
+          }
+        },
+        {
+          "id": "ai_act_1780661924336",
+          "command": "wait",
+          "label": "Hold alignment position",
+          "properties": {
+            "exact": "10s"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_miner_trade",
+      "name": "miner.auto.harvest",
+      "description": "Finds ore deposits in the faction sectors, mines asteroid nodes, and docks to trade with higher yields.",
+      "command": "command.mine",
+      "attentionLevel": "low",
+      "params": [
+        {
+          "name": "resourceware",
+          "type": "ware",
+          "defaultValue": "ware.ore",
+          "comment": "Mining mineral focus material"
+        },
+        {
+          "name": "max_gate_range",
+          "type": "number",
+          "defaultValue": "3",
+          "comment": "Safety jump radius"
+        }
+      ],
+      "interrupts": [
+        {
+          "id": "int_3",
+          "event": "event.object_hull_damaged",
+          "action": "flee"
+        }
+      ],
+      "actions": [
+        {
+          "id": "act_5",
+          "command": "find_objects",
+          "label": "Detect rich asteroid nodes",
+          "properties": {
+            "class": "asteroid",
+            "resource": "$resourceware",
+            "range": "50km"
+          }
+        },
+        {
+          "id": "act_6",
+          "command": "move_to",
+          "label": "Approach resources cluster",
+          "properties": {
+            "destination": "$asteroid",
+            "speed": "50",
+            "precision": "10m"
+          }
+        },
+        {
+          "id": "act_7",
+          "command": "wait",
+          "label": "Initiate laser excavation beams",
+          "properties": {
+            "exact": "30s"
+          }
+        },
+        {
+          "id": "act_8",
+          "command": "dock_at",
+          "label": "Unload cargo at refinery station",
+          "properties": {
+            "station": "faction.player.hq",
+            "trade": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "wares": [],
+  "jobs": [],
+  "xmlPatches": []
+}
